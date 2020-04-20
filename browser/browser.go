@@ -5,6 +5,7 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"fmt"
+	"github.com/sp0x/surf/browser/encoding"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -55,6 +56,9 @@ var InitialAssetsSliceSize = 20
 type Browsable interface {
 	// SetUserAgent sets the user agent.
 	SetUserAgent(ua string)
+
+	//SetEncoding sets the encoding to use after a page is fetched
+	SetEncoding(encodingName string)
 
 	// SetAttribute sets a browser instruction attribute.
 	SetAttribute(a Attribute, v bool)
@@ -214,7 +218,8 @@ type Browser struct {
 	refresh *time.Timer
 
 	// body of the current page.
-	body []byte
+	body     []byte
+	encoding string
 }
 
 // buildClient instanciates the *http.Client used by the browser
@@ -497,6 +502,11 @@ func (bow *Browser) SetUserAgent(userAgent string) {
 	bow.userAgent = userAgent
 }
 
+// SetEncoding sets the encoding to use after a page is fetched.
+func (bow *Browser) SetEncoding(encodingName string) {
+	bow.encoding = encodingName
+}
+
 // SetAttribute sets a browser instruction attribute.
 func (bow *Browser) SetAttribute(a Attribute, v bool) {
 	bow.attributes[a] = v
@@ -729,6 +739,13 @@ func (bow *Browser) httpRequest(req *http.Request) error {
 	}
 
 	bow.body, err = ioutil.ReadAll(reader)
+	if bow.encoding != "" {
+		codepage := encoding.GetEncoding(bow.encoding)
+		if codepage != nil {
+			dec := codepage.NewDecoder()
+			bow.body, err = dec.Bytes(bow.body)
+		}
+	}
 	if err != nil {
 		return err
 	}
