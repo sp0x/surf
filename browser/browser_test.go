@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/headzoo/surf/agent"
-	"github.com/headzoo/surf/jar"
+	"github.com/sp0x/surf/agent"
+	"github.com/sp0x/surf/jar"
 )
 
 func newDefaultTestBrowser() *Browser {
@@ -141,7 +141,7 @@ func TestCookieHeader(t *testing.T) {
 }
 
 // Should inherit the configuration into a new instance
-func TestTabInheritance(t *testing.T){
+func TestTabInheritance(t *testing.T) {
 	bow1 := newDefaultTestBrowser()
 	bow2 := newDefaultTestBrowser()
 
@@ -163,7 +163,7 @@ func TestTabInheritance(t *testing.T){
 
 	// Create a new browser
 	bow3 := bow1.NewTab()
-	if bow1 == bow3{
+	if bow1 == bow3 {
 		t.Fatal("Tab did not create a new browser")
 	}
 
@@ -177,29 +177,29 @@ func TestTabInheritance(t *testing.T){
 		t.Fatal("Tab did not copy the userAgent")
 	}
 
-	for k,v := range bow1.attributes {
-		if bow1.attributes[k] != bow2.attributes[k]{
+	for k, v := range bow1.attributes {
+		if bow1.attributes[k] != bow2.attributes[k] {
 			t.Errorf("Tab did not copy the %v attribute", v)
 		}
 	}
 
-	if bow1.State() != bow2.State(){
+	if bow1.State() != bow2.State() {
 		t.Fatal("Tab did not copy the state")
 	}
 
-	if bow1.BookmarksJar() != bow2.BookmarksJar(){
+	if bow1.BookmarksJar() != bow2.BookmarksJar() {
 		t.Fatal("Tab did not copy the BookmarksJar")
 	}
 
-	if bow1.CookieJar() != bow2.CookieJar(){
+	if bow1.CookieJar() != bow2.CookieJar() {
 		t.Fatal("Tab did not copy the CookieJar")
 	}
 
-	if bow1.HistoryJar() != bow2.HistoryJar(){
+	if bow1.HistoryJar() != bow2.HistoryJar() {
 		t.Fatal("Tab did not copy the HistoryJar")
 	}
 
-	if len(bow1.headers) != len(bow2.headers){
+	if len(bow1.headers) != len(bow2.headers) {
 		t.Fatal("Tab did not copy the HeadersJar")
 	}
 
