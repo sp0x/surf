@@ -783,8 +783,10 @@ func (bow *Browser) preSend() {
 	//If we're going over our rate limit, we need to sleep the time remaining
 	if bow.rateLimit != 0 {
 		timeElapsed := time.Now().Sub(bow.lastRequestOn)
-		if int(timeElapsed.Milliseconds()) < bow.rateLimit {
-			diff := time.Duration(int64(bow.rateLimit) - timeElapsed.Milliseconds())
+		tms := timeElapsed.Nanoseconds() / 1e6
+
+		if int(tms) < bow.rateLimit {
+			diff := time.Duration(int64(bow.rateLimit) - tms)
 			time.Sleep(diff * time.Millisecond)
 		}
 	}
