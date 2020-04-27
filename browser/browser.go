@@ -59,6 +59,7 @@ type Browsable interface {
 
 	//SetEncoding sets the encoding to use after a page is fetched
 	SetEncoding(encodingName string)
+	SetRateLimit(msBetweenRequests int)
 
 	// SetAttribute sets a browser instruction attribute.
 	SetAttribute(a Attribute, v bool)
@@ -218,8 +219,14 @@ type Browser struct {
 	refresh *time.Timer
 
 	// body of the current page.
-	body     []byte
+	body []byte
+
+	//The encoding to use to decode page content
 	encoding string
+
+	//Ms between requests
+	rateLimit     int
+	lastRequestOn time.Time
 }
 
 // buildClient instanciates the *http.Client used by the browser
@@ -507,6 +514,10 @@ func (bow *Browser) SetEncoding(encodingName string) {
 	bow.encoding = encodingName
 }
 
+func (bow *Browser) SetRateLimit(msBetweenRequests int) {
+	bow.rateLimit = msBetweenRequests
+}
+
 // SetAttribute sets a browser instruction attribute.
 func (bow *Browser) SetAttribute(a Attribute, v bool) {
 	bow.attributes[a] = v
@@ -758,6 +769,7 @@ func (bow *Browser) httpRequest(req *http.Request) error {
 
 	bow.history.Push(bow.state)
 	bow.state = jar.NewHistoryState(req, resp, dom)
+	bow.lastRequestOn = time.Now()
 	bow.postSend()
 
 	return nil
@@ -767,6 +779,14 @@ func (bow *Browser) httpRequest(req *http.Request) error {
 func (bow *Browser) preSend() {
 	if bow.refresh != nil {
 		bow.refresh.Stop()
+	}
+	//If we're going over our rate limit, we need to sleep the time remaining
+	if bow.rateLimit != 0 {
+		timeElapsed := time.Now().Sub(bow.lastRequestOn)
+		if int(timeElapsed.Milliseconds()) < bow.rateLimit {
+			diff := time.Duration(int64(bow.rateLimit) - timeElapsed.Milliseconds())
+			time.Sleep(diff * time.Millisecond)
+		}
 	}
 }
 
