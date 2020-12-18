@@ -5,7 +5,6 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"fmt"
-	"github.com/sp0x/surf/browser/encoding"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -15,6 +14,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/sp0x/surf/browser/encoding"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/sp0x/surf/errors"
@@ -599,6 +600,11 @@ func (bow *Browser) ResolveStringUrl(u string) (string, error) {
 func (bow *Browser) Download(o io.Writer) (int64, error) {
 	buff := bytes.NewBuffer(bow.body)
 	return io.Copy(o, buff)
+}
+
+//RawBody gets the bytes that were read from the response
+func (bow *Browser) RawBody() []byte {
+	return bow.body
 }
 
 // Url returns the page URL as a string.
