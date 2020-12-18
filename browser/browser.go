@@ -125,6 +125,9 @@ type Browsable interface {
 	// PostMultipart requests the given URL using the POST method with the given data using multipart/form-data format.
 	PostMultipart(u string, fields url.Values, files FileSet) error
 
+	//RawBody gets the bytes that were read from the response
+	RawBody() []byte
+
 	// Back loads the previously requested page.
 	Back() bool
 
